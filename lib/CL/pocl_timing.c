@@ -22,35 +22,36 @@
 */
 
 #include "config.h"
-
+/*
 #ifndef _MSC_VER
 #  ifndef __STDC_FORMAT_MACROS
 #    define __STDC_FORMAT_MACROS
 #  endif
+*/
 #  include <inttypes.h>
-#  ifdef HAVE_CLOCK_GETTIME
+//#  ifdef HAVE_CLOCK_GETTIME
 #    include <time.h>
-#  else
+/*#  else
 #    include <sys/time.h>
 #  endif
 #  ifdef __MACH__
 #    include <mach/clock.h>
 #    include <mach/mach.h>
-#  endif
+#  endif */
 #  include <sys/resource.h>
 #  include <unistd.h>
-#else
+/* #else
 #  include "vccompat.hpp"
 #  include <stdint.h>
 #  include <stddef.h> // size_t
 #endif
-
+*/
 #include "pocl_timing.h"
 
-#ifdef HAVE_CLOCK_GETTIME
+//#ifdef HAVE_CLOCK_GETTIME
 // clock_gettime is (at best) nanosec res
 const unsigned pocl_timer_resolution = 1;
-#else
+/*#else
 #  ifndef _MSC_VER
 // gettimeofday() has (at best) microsec res
 const unsigned pocl_timer_resolution = 1000;
@@ -59,16 +60,16 @@ const unsigned pocl_timer_resolution = 1000;
 const unsigned pocl_timer_resolution = 1000;
 #  endif
 #endif
-
+*/
 
 uint64_t pocl_gettimemono_ns() {
 
-#ifdef HAVE_CLOCK_GETTIME
+//#ifdef HAVE_CLOCK_GETTIME
   struct timespec timespec;
-# ifdef __linux__
-#  ifdef CLOCK_MONOTONIC_RAW 
+//# ifdef __linux__
+//#  ifdef CLOCK_MONOTONIC_RAW 
   clock_gettime(CLOCK_MONOTONIC_RAW, &timespec);
-#  else
+/*#  else
 #   warning Using clock_gettime with CLOCK_MONOTONIC for monotonic clocks
   clock_gettime(CLOCK_MONOTONIC, &timespec);
 #  endif
@@ -78,9 +79,10 @@ uint64_t pocl_gettimemono_ns() {
 # warning Using clock_gettime with CLOCK_REALTIME for monotonic clocks
   clock_gettime(CLOCK_REALTIME, &timespec);
 # endif
-  return ((timespec.tv_sec * 1000000000UL) + timespec.tv_nsec);
+*/
+return ((timespec.tv_sec * 1000000000UL) + timespec.tv_nsec);
 
-
+/*
 #elif defined(__APPLE__)
   clock_serv_t cclock;
   mach_timespec_t mts;
@@ -105,20 +107,21 @@ uint64_t pocl_gettimemono_ns() {
   return ((uint64_t)current.tv_sec * 1000000 + current.tv_usec)*1000;
 
 #endif
+*/
 }
 
 int pocl_gettimereal(int *year, int *mon, int *day, int *hour, int *min, int *sec, int* nanosec)
 {
-#if defined(HAVE_CLOCK_GETTIME) || defined(__APPLE__) || defined(HAVE_GETTIMEOFDAY)
+//#if defined(HAVE_CLOCK_GETTIME) || defined(__APPLE__) || defined(HAVE_GETTIMEOFDAY)
   struct tm t;
   struct timespec timespec;
   time_t sec_input;
 
-#if defined(HAVE_CLOCK_GETTIME)
+//#if defined(HAVE_CLOCK_GETTIME)
   clock_gettime(CLOCK_REALTIME, &timespec);
   *nanosec = timespec.tv_nsec;
   sec_input = timespec.tv_sec;
-#elif defined(__APPLE__)
+/*#elif defined(__APPLE__)
   clock_serv_t cclock;
   mach_timespec_t mts;
   host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
@@ -126,12 +129,13 @@ int pocl_gettimereal(int *year, int *mon, int *day, int *hour, int *min, int *se
   mach_port_deallocate(mach_task_self(), cclock);
   *nanosec = mts.tv_nsec;
   sec_input = mts.tv_sec;
-#else /* gettimeofday */
+#else // gettimeofday 
   struct timeval current;
   gettimeofday(&current, NULL);
   *nanosec = (uint64_t)current.tv_sec * 1000000;
   sec_input = current.tv_usec;
 #endif
+*/
   gmtime_r(&sec_input, &t);
   *year = (t.tm_year + 1900);
   *mon = t.tm_mon;
@@ -140,7 +144,7 @@ int pocl_gettimereal(int *year, int *mon, int *day, int *hour, int *min, int *se
   *min = t.tm_min;
   *sec = t.tm_sec;
   return 0;
-
+/*
 #elif defined(_WIN32)
   FILETIME ft;
   GetSystemTimeAsFileTime(&ft);
@@ -154,5 +158,5 @@ int pocl_gettimereal(int *year, int *mon, int *day, int *hour, int *min, int *se
 #else
 #error Unknown system variant
 #endif
-
+*/
 }
